@@ -1,0 +1,15 @@
+
+
+DEFINITIONS:
+
+- Average pages viewed per visit: average number of pages users visit before navigating to a different domain.
+- Average visit duration: average duration of time spent on the site.
+- Bounce rate: the average percentage of visitors who view only one page before leaving the website
+- Coleman–Liau index (CLI): a readability index based on word count and word length. Formula : 5.89 x (characters/words) - 0.3 x (sentences/words) – 15.8
+- Correlation: correlations using Pearson's r coefficient. Four correlations are tested:
+    -- CLI and visits to site (see below)
+    -- CLI and bounce rate
+    -- CLI and average visit duration
+    -- CLI and average pages viewed per visit
+- Visits: the total number of visits to the site within the past 30 days.
+
