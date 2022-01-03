@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Mon Jan 03 09:44:47 CST 2022:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-017e-209d-4c84-0000066580b8 
-on database directory C:\Scala Programs 3.0\untitled\metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@24f77077 
+Mon Jan 03 11:47:20 CST 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-017e-210d-8107-00000542f1a0 
+on database directory C:\Scala Programs 3.0\untitled\metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@423d662a 
 Loaded from file:/C:/Users/brady/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_301-b09

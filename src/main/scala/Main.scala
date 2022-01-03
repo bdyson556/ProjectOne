@@ -1,52 +1,18 @@
-import javassist.bytecode.SignatureAttribute.ArrayType
-import java.sql.{Connection, DriverManager}
 import org.apache.spark.sql.SparkSession
-import org.apache.spark._
 import org.apache.spark.sql.functions._
-import java.sql.PreparedStatement
-import java.sql.SQLException
+
 import scala.io.StdIn._
-import scala.StringBuilder._
-import scala.util.control.Breaks
 import scala.util.control.Breaks._
 import scala.io.AnsiColor._
 import java.awt.event.KeyEvent
 import java.awt.Toolkit
-import java.sql.ResultSet
-import scala.collection.mutable.Map
-import scala.collection.mutable.ArrayBuffer
-import java.sql.SQLException
-import java.sql.BatchUpdateException
-import java.sql.DataTruncation
-import java.sql.SQLWarning
-import ujson._
-import scala.language.dynamics._
-import com.github.pathikrit.dijon._
-import javax.validation.constraints.Digits
-//import org.apache.spark.ml.linalg.{Matrix, Vectors}
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.udf
-import java.io.{BufferedWriter, File, FileWriter}
 import scala.io.Source
-import scala.io.BufferedSource
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
-import scala.collection.mutable.Map
-
-//    CREATE TABLES AND PARTITIONS (source info, content, and reading level index; partition by source)
-//    spark.sql("SET hive.exec.dynamic.partition = true")
-//    spark.sql("SET hive.exec.dynamic.partition.mode = nonstrict")
-//    spark.sql("DROP TABLE IF EXISTS readability")
-//    spark.sql("CREATE TABLE (source STRING, content STRING, read_lvl) ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.JsonSerde'")
-
+import scala.collection.mutable
 
 
 object Main extends App {
-
-//  JDBC
-  val driver = "mysql.cj.jdbc.Driver"
-  val url = "jdbc:mysql://localhost:3306/ProjectZero"
-  val username = "root"
-  val password = "U-)9tCLmxx4yjyB@!U*!L:>yxeu"
 
   //  uJSON
 val wd = os.pwd/"TEST"
@@ -54,156 +20,8 @@ val wd = os.pwd/"TEST"
 //  NewsData API
   val newsDataKey = "pub_31316e9fe98176be0c8d30380afc458c0316"
 
-
   var passwordCorrect = new StringBuilder("...")
-  var usersPasswords = Map[String, String]()
-
-//  def logon(): Unit = {
-//    var x = new StringBuilder()
-//    val logons = List("logon", "LOGON", "exit", "EXIT")
-//    breakable {
-//      while (!logons.contains(x.toString())) {
-//        x.clear()
-//        println(s"${BOLD}To logon, type 'logon' and press ENTER. (To log on as administrator, type 'admin' and press ENTER.)")
-//        Thread.sleep(200)
-//        x.append(readLine(s"To exit, type 'exit' and press ENTER:\n  ${RESET}"))
-//        if (logons.contains(x.toString())) break()
-//        //        else println(s"${RED}Invalid input.${RESET}")
-//        else {
-//          println(s"${RED}Invalid input.${RESET}")
-//          Thread.sleep(500)
-//        }
-//      }
-//    }
-//
-//    if (x.toString() == "EXIT" || x.toString() == "exit") exit()
-//    else {
-//      val isOn = Toolkit.getDefaultToolkit.getLockingKeyState(KeyEvent.VK_CAPS_LOCK)
-//      if (isOn) println(s"${RED}Easy there, killer! CAPS LOCK is on.${RESET}")
-//      val userCorrect: String = "test"
-//      var passwordCorrect = new StringBuilder("...")
-//      var userNameInput = new StringBuilder()
-//      var passwordInput = new StringBuilder()
-//      retrievePasswords()
-//
-//      //      Enter and validate user name.
-//
-//      breakable {
-//        while (passwordInput.toString != passwordCorrect.toString()) {
-//          Thread.sleep(250)
-//          userNameInput.clear()
-//          breakable {
-//            while (!(usersPasswords.contains(userNameInput.toString()))) {
-//              passwordCorrect.clear()
-//              userNameInput.clear()
-//              println()
-//              userNameInput.append(readLine(s"${BOLD}Enter your user name, then press ENTER:\n  ${RESET}"))
-//              if (usersPasswords.contains(userNameInput.toString())) {
-//                passwordCorrect.append(usersPasswords(userNameInput.toString()))
-//                break()
-//              }
-//              else println(s"${RED}There is no user by that name in the system. Please re-enter your user name.${RESET}")
-//            }
-//
-//            //            password checks should go here, I think
-//
-//          }
-//
-//          passwordInput.clear()
-//          println()
-//          passwordInput.append(readLine(s"Enter your password:          (it's ${passwordCorrect}, btw.)\n  "))
-//          if (passwordInput.toString() == passwordCorrect.toString()) {
-//            Thread.sleep(250)
-//            println()
-//            println(s"${BLUE}${BOLD}Welcome!${RESET}")
-//            Thread.sleep(300)
-//            break()
-//          }
-//
-//          else {
-//            println(s"${RED}Incorrect user name or password. Passwords are case-sensitive.${RESET}")
-//            Thread.sleep(250)
-//          }
-//        }
-//      }
-//    }
-//  }
-//  def retrievePasswords(): Unit = {
-//    var connection: Connection = DriverManager.getConnection(url, username, password)
-//    val statement = connection.createStatement()
-//    var resultSet = statement.executeQuery(s"SELECT userName, password FROM Passwords")
-//    var i = 0
-//    while (resultSet.next()) {
-//      //            println(resultSet.getString(1)+", " +resultSet.getString(2))
-//      usersPasswords += (resultSet.getString("userName") -> resultSet.getString("password"))
-//      i += 1
-//    }
-//    println(usersPasswords)
-//    connection.close()
-//  }
-//  def menu(): Unit = {
-////    println(BOLD)
-////    for (c <- "Loading...") {
-////      Thread.sleep(250)
-////      print(" " + c)
-////    }
-////    println(RESET)
-//    println()
-//    Thread.sleep(900)
-//    val options = List("1", "2", "3", "4", "5", "6", "7","8","9")
-//    var y = new StringBuilder
-//    breakable {
-//      while (!options.contains(y.toString())) {
-//        y.clear()
-//        println(s"${BOLD}Please select from the following options:${RESET}")
-//        Thread.sleep(500)
-//        println("1. Check current balance\n2. View transactions (last 30 days)\n3. View transactions (last 60 days)\n4. View transactions (last 90 days)\n5. Spending report (30 days)\n6. Spending report (60 days)\n7. Spending report (90 days)\n8. View spending goals\n9. Log off\n  ")
-//        y.append(readLine())
-//        y.toString() match {
-//          case "1" => Menu1(); break();
-//          case "2" => Menu2(); break();
-//          case "3" => Menu3(); break();
-//          case "4" => Menu4(); break();
-//          case "5" => Menu5(); break();
-//          case "6" => Menu6(); break();
-//          case "7" => changePassword(); break();
-//          case "8" => Menu8(); break()
-//          case "9" => Thread.sleep(250); exit(); break()
-//          case _ => println(s"${RED}Invalid input.${RESET}"); Thread.sleep(500);
-//        }
-//      }
-//    }
-//  }
-//  def Menu1(): Unit = {
-//    System.setProperty("hadoop.home.dir", "C:\\hadoop")
-//    val spark = SparkSession
-//      .builder
-//      .appName("hello hive")
-//      .config("spark.master", "local")
-//      .enableHiveSupport()
-//      .getOrCreate()
-//    spark.sparkContext.setLogLevel("ERROR")
-////    spark.sql("SET hive.exec.dynamic.partition = true")
-////    spark.sql("SET hive.exec.dynamic.partition.mode = nonstrict")
-////    spark.sql("DROP table IF EXISTS BevC")
-////    spark.sql("create table IF NOT EXISTS NewBevC(Beverage String, BranchID String) row format delimited fields terminated by ',' stored as textfile")
-////    spark.sql("LOAD DATA LOCAL INPATH 'Bev_BranchC.txt' INTO TABLE NewBevC")
-////    spark.sql("SELECT * FROM NewBevC").show()
-//    spark.sql("SET hive.exec.dynamic.partition = true")
-//    spark.sql("SET hive.exec.dynamic.partition.mode = nonstrict")
-//    spark.sql("DROP TABLE IF EXISTS readability")
-//    spark.sql("CREATE TABLE (source STRING, content STRING, read_lvl) ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.JsonSerde'")
-//    spark.close()
-//  }
-//  def Menu2(): Unit = {
-//
-//    val filename = "C:\\Scala Programs 3.0\\untitled\\TEST\\CLI Samples.txt"
-//    for (line <- Source.fromFile(filename).getLines) {
-//      println(line)
-//    }
-//
-//    menu()
-//  }
+  var usersPasswords = mutable.Map[String, String]()
 
   def MenuMaster(): Unit = {
 
@@ -218,19 +36,7 @@ val wd = os.pwd/"TEST"
     spark.sparkContext.setLogLevel("OFF")
     import spark.implicits._
 
-//    spark.sql("CREATE TABLE IF NOT EXISTS storedTables (tables STRING)")
-//    spark.sql("CREATE TABLE IF NOT EXISTS Passwords (userName STRING, password STRING)")
-//    spark.sql("INSERT OVERWRITE Passwords VALUES ('bradyd123','1234'),('veronicaflor456','2345')('chaparritafea23','3456')")
-//    spark.sql("SELECT * FROM Passwords").show()
-
-//    val passwordsDF = spark.read.csv("C:\\Scala Programs 3.0\\untitled\\TEST\\passwords.csv").toDF("userName","password")
-//    passwordsDF.show()
-//    val users = passwordsDF.select($"userName").map(f=>f.getString(0)).collect.toArray
-//    val passwords = passwordsDF.select($"password").map(f=>f.getString(0)).collect.toArray
-//    val userPasswords = users.zip(passwords)
-
     val usersPasswords = collection.mutable.Map[String,String]("bradyd123"->"1234","veronicaflor456"->"2345","chaparritafea23"->"3456")
-
 
     //    REQUEST AND JSON CREATION
 
@@ -293,8 +99,6 @@ val wd = os.pwd/"TEST"
 //
 //
 
-
-
     //    Creating the news query DF with four columns.
     var df0 = spark.read.json("C:\\Scala Programs 3.0\\untitled\\TEST\\newsapiRes1(justArticles).json").toDF()
     var df_2 = spark.read.json("C:\\Scala Programs 3.0\\untitled\\TEST\\newsapiRes2(justArticles).json").toDF()
@@ -319,10 +123,10 @@ val wd = os.pwd/"TEST"
 //    var df_19 = spark.read.json("C:\\Scala Programs 3.0\\untitled\\TEST\\newsapiRes19(justArticles).json").toDF()
 //    var df_20 = spark.read.json("C:\\Scala Programs 3.0\\untitled\\TEST\\newsapiRes20(justArticles).json").toDF()
 
+//    COMBINING AND BUILDING MASTER DATAFRAME.
     val df1 = df0.union(df_2).union(df_3).union(df_4).union(df_5)
     val df2 = df1.select("source", "content").toDF("Source","Content")
     val totCharCount = udf((x: String) => x.substring(x.lastIndexOf("[+"),x.length).filter(_.isDigit))
-//    val visits = udf((x:String) => nuMap("ab"))
     val contentSentences = df2.select($"Source", $"Content",
   split(col("Content"),"\\. ").getItem(0).as("s0"),
   split(col("Content"),"\\. ").getItem(1).as("s1"),
@@ -346,13 +150,6 @@ val wd = os.pwd/"TEST"
 //
 
 contentSentences.createOrReplaceTempView("contentSentences")
-
-//println("NEWTHING: ")
-//    val NEWTHING = contentSentences.join(trafficStats,contentSentences("source")===trafficStats("_c0")).show()
-
-//  spark.sql("DROP TABLE IF EXISTS df2Bucketed")
-////    dbutils.fs.rm("dbfs:/user/hive/warehouse/SomeData/", true)
-//  contentSentences.write.bucketBy(3, "CLI").saveAsTable("df2Bucketed")
 
 // Only to display results in buckets, ordered by CLI.
   val newDFa = spark.sql("WITH one AS " +
@@ -407,29 +204,20 @@ contentSentences.createOrReplaceTempView("contentSentences")
     val correlations = spark.read.csv("C:\\Scala Programs 3.0\\untitled\\TEST\\Correlations.csv").toDF().select("_c0","_c1","_c2","_c3").toDF("CLI/bounceRate","CLI/visitsLastMonth","CLI/pagesPerVisit","CLI/avgDuration")
 //    correlations.show()
 
-
-
-
-
     def logon(): Unit = {
       println("logon")
-//      val driver = "mysql.cj.jdbc.Driver"
-//      val url = "jdbc:mysql://localhost:3306/ProjectZero"
-//      val username = "root"
 
       var x = new StringBuilder()
       val logons = List("logon", "LOGON", "admin", "ADMIN","exit", "EXIT")
       breakable {
         while (!logons.contains(x.toString())) {
           x.clear()
-//          println(s"${BOLD}To logon, type 'logon' and press ENTER. (To log on as administrator, type 'admin' and press ENTER.)")
           println(s"${BOLD}To logon, type 'logon' and press ENTER.")
           Thread.sleep(200)
-          x.append(readLine(s"To exit, type 'exit' and press ENTER:\n  ${RESET}"))
+          x.append(readLine(s"To exit, type 'exit' and press ENTER:\n  $RESET"))
           if (logons.contains(x.toString())) break()
-          //        else println(s"${RED}Invalid input.${RESET}")
           else {
-            println(s"${RED}Invalid input.${RESET}")
+            println(s"${RED}Invalid input.$RESET")
             Thread.sleep(500)
           }
         }
@@ -438,7 +226,7 @@ contentSentences.createOrReplaceTempView("contentSentences")
       if (x.toString() == "EXIT" || x.toString() == "exit") exit()
       else {
         val isOn = Toolkit.getDefaultToolkit.getLockingKeyState(KeyEvent.VK_CAPS_LOCK)
-        if (isOn) println(s"${RED}Easy there, killer! CAPS LOCK is on.${RESET}")
+        if (isOn) println(s"${RED}Easy there, killer! CAPS LOCK is on.$RESET")
         val userCorrect: String = "test"
         var passwordCorrect = new StringBuilder("...")
         var userNameInput = new StringBuilder()
@@ -451,7 +239,7 @@ contentSentences.createOrReplaceTempView("contentSentences")
             Thread.sleep(250)
             userNameInput.clear()
             breakable {
-              while (!(usersPasswords.contains(userNameInput.toString()))) {
+              while (!usersPasswords.contains(userNameInput.toString())) {
                 passwordCorrect.clear()
                 userNameInput.clear()
                 println()
@@ -485,31 +273,11 @@ contentSentences.createOrReplaceTempView("contentSentences")
       }
     }
     def retrievePasswords(): Unit = {
-//      var connection: Connection = DriverManager.getConnection(url, username, password)
-//      val statement = connection.createStatement()
-//      var resultSet = statement.executeQuery(s"SELECT userName, password FROM Passwords")
-//      var i = 0
-//      while (resultSet.next()) {
-//        //            println(resultSet.getString(1)+", " +resultSet.getString(2))
-//        usersPasswords += (resultSet.getString("userName") -> resultSet.getString("password"))
-//        i += 1
-//      }
-//      println(usersPasswords)
-//      connection.close()
-
-
       println
-
     }
 
 //    Main menu.
     def menu(): Unit = {
-      //    println(BOLD)
-      //    for (c <- "Loading...") {
-      //      Thread.sleep(250)
-      //      print(" " + c)
-      //    }
-      //    println(RESET)
       println()
       Thread.sleep(900)
       val options = List("1", "2", "3", "4", "5", "6", "7","8","9")
@@ -576,21 +344,7 @@ contentSentences.createOrReplaceTempView("contentSentences")
 
 //    Displays source information, including avg CLIs and traffic data.
     def Menu4(): Unit = {
-//      def saveTable():Unit = {
-//        val tableName = readLine("Enter a table name and press ENTER: \n")
-//        spark.sql(s"DROP TABLE IF EXISTS $tableName")
-//        spark.sql(s"CREATE TABLE $tableName AS SELECT * FROM sourceSummaryDF3")
-//        println("Table saved!")
-//        spark.sql(s"INSERT INTO storedTables VALUES($tableName)")
-//        Thread.sleep(2000)
-//        menu()
-//      }
       sourceSummaryDF3.show()
-//      var save = readLine("Save table? Type y for yes, or type any other key to continue. \n")
-//      save.toString match {
-//        case "y" => saveTable()
-//        case _ => println("Menu")
-//      }
       menu()
     }
 
@@ -647,95 +401,6 @@ contentSentences.createOrReplaceTempView("contentSentences")
 
   }
 
-
-
-//  def Menu4(): Unit = {
-//    System.setProperty("hadoop.home.dir", "C:\\hadoop")
-//    val spark = SparkSession
-//      .builder
-//      .appName("hello hive")
-//      .config("spark.master", "local")
-//      .enableHiveSupport()
-//      .getOrCreate()
-//    spark.sparkContext.setLogLevel("ERROR")
-//    spark.sql("CREATE TABLE IF NOT EXISTS jsonTest1")
-//    spark.close()
-//  }
-//  def Menu5(): Unit = {
-//    System.setProperty("hadoop.home.dir", "C:\\hadoop")
-//    val spark = SparkSession
-//      .builder
-//      .appName("hello hive")
-//      .config("spark.master", "local")
-//      .enableHiveSupport()
-//      .getOrCreate()
-//    spark.sparkContext.setLogLevel("ERROR")
-//    spark.sql("SET hive.exec.dynamic.partition = true")
-//    spark.sql("SET hive.exec.dynamic.partition.mode = nonstrict")
-//    spark.sql("DROP table IF EXISTS BevC")
-//    spark.sql("create table IF NOT EXISTS BevC(Beverage String, BranchID String) row format delimited fields terminated by ',' stored as textfile")
-//    spark.sql("LOAD DATA LOCAL INPATH 'Bev_BranchC.txt' INTO TABLE BevC")
-//    spark.sql("SELECT * FROM BevC").show()
-//    spark.close()
-//  }
-//  def Menu6(): Unit = {
-//
-//    val x = Array[Double](8.152,7.4866666667,16.4430769231,10.3975,7.4866666667,10.21375,8.152,5.011,8.152,6.8572972973,5.6953846154,6.2610526316,6.2610526316,6.6983783784,10.3975)
-//    val y = Array[Double](8,10,23,13,10,14,8,7,11,8,5,4,9,10,13)
-//    val pearson2 = new PearsonsCorrelation().correlation(y,x)
-//    println(pearson2)
-//
-//  }
-//  def changePassword(): Unit = {}
-//  def Menu8(): Unit = {}
-//  def exit(): Unit = {
-//    println("Goodbye!")
-//    System.exit(0)
-//  }
-
-
-
   MenuMaster()
 
 }
-
-
-
-
-
-
-//TRASH HEAP
-
-//val x = Array[Double](8.152,7.4866666667,16.4430769231,10.3975,7.4866666667,10.21375,8.152,5.011,8.152,6.8572972973,5.6953846154,6.2610526316,6.2610526316,6.6983783784,10.3975)
-//val y = Array[Double](8,10,23,13,10,14,8,7,11,8,5,4,9,10,13)
-//val pearson2 = new PearsonsCorrelation().correlation(y,x)
-//println(pearson2)
-
-
-//    MAKES 10 SUCCESSIVE REQUESTS, ADDING EACH TO THE STRINGBUILDER AND FORMATTING APPROPRIATELY.
-//    for ( i <- 2 to 3) {
-//      println("FOR LOOP")
-//      val string = s"https://newsapi.org/v2/everything?page=\\${i}&domains=nytimes.com,cnn.com,nbcnews.com,huffingtonpost.com,time.com,nypost.com,latimes.com,nydailynews.com,npr.com,msn.com,theguardian.com,cnet.com,bbc.com,elitedaily.com,businessinsider.com,bleachreport.com,washingtonpost.com,dailymail.co.uk,foxnews.com,buzzfeed.com,usatoday.com,cbsnews.com,huffingtonpost.com,nbcnews.com,abcnews.go.com,mashable.com,sfgate.com,slate.com,upworthy.com,theblaze.com,telegraph.co.uk,usnews.com,vice.com,chron.com,gawker.com,examiner.com,vox.com,chicagotribune.com,thedailybeast.com,salon.com,mic.com,mirror.co.uk/news,nj.com,independent.co.uk,freep.com,bostonglobe.com,theatlantic.com,mlive.com,engadget.com,techcrunch.com,boston.com,al.com,dallasnews.com&language=en&apiKey=5fcd3c9b0f06460fbfb08e95b82e9015"
-//      val res2 = requests.get(string)
-//      var rawText2 = new StringBuilder()
-////      rawText2.append(ujson.read(res2.text)("articles"))
-//      rawText2.append(ujson.read(res2.text))
-//      rawText2=rawText2.slice(1,rawText2.length-1)
-//      rawText.append("," + rawText2)
-//    }
-
-
-//spark.sql("DROP TABLE IF EXISTS numbered")
-//spark.sql("CREATE TABLE numbered AS (SELECT ROW_NUMBER() OVER (ORDER BY CLI) AS rowNum, Source, Content, s0, s1, s2, sCount, wordCount, charCount, words0, words1, words2, CLI FROM df2Bucketed)").show()
-//spark.sql("SELECT * FROM numbered").show()
-
-
-//
-//spark.sql("DROP TABLE IF EXISTS content_sentences2")
-//spark.sql("CREATE TABLE content_sentences2 AS SELECT * FROM content_sentences").show()
-//spark.sql("SELECT Source, Content, s0, s1, s2, sCount, wordCount, charCount, words0, words1, words2, CLI FROM content_sentences2 WHERE sCount > 1 AND words0 > 2").show()
-//
-
-//    val sqlContentSentences2 = spark.sql("SELECT Source, COUNT(*) FROM content_sentences2 WHERE sCount > 1 AND words0 > 2 GROUP BY Source").show()
-//    val sqlContentSentences3 = spark.sql("SELECT COUNT(*) FROM content_sentences2").show()
-//  val sqlContentSentences = spark.sql("WITH one AS (SELECT * FROM content_sentences WHERE sCount > 1 AND words0 > 2) SELECT * FROM one").show()
